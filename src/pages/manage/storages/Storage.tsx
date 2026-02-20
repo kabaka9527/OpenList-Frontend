@@ -47,8 +47,25 @@ function StorageOp(props: StorageProps) {
         }`,
       ),
   )
+  const [refreshLoading, refreshStorage] = useFetch(
+    (): PEmptyResp => r.post(`/admin/storage/refresh?id=${props.storage.id}`),
+  )
   return (
     <>
+      <Show when={props.storage.driver === "GithubReleases"}>
+        <Button
+          loading={refreshLoading()}
+          colorScheme="info"
+          onClick={async () => {
+            const resp = await refreshStorage()
+            handleRespWithNotifySuccess(resp, () => {
+              props.refresh()
+            })
+          }}
+        >
+          {t("storages.other.refresh_release")}
+        </Button>
+      </Show>
       <Button
         onClick={() => {
           to(`/@manage/storages/edit/${props.storage.id}`)
